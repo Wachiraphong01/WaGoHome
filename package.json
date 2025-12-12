@@ -1,0 +1,15 @@
+{
+    "name": "tell-mom-app",
+    "version": "1.0.0",
+    "description": "App to tell mom I'm coming home",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "dependencies": {
+        "express": "^4.18.2",
+        "socket.io": "^4.6.1",
+        "sqlite3": "^5.1.6",
+        "pg": "^8.11.3"
+    }
+}
