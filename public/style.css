@@ -1,0 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap');
+body { font-family: 'Kanit', sans-serif; background-color: #f1f5f9; }
+::-webkit-scrollbar { width: 0px; background: transparent; }
+div:where(.swal2-container) { font-family: 'Kanit', sans-serif !important; }
+.upload-zone-box { border: 2px dashed #e2e8f0; transition: all 0.3s ease; }
+.upload-zone-box:hover { border-color: #94a3b8; background-color: #f8fafc; }
+.fade-in { animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.profile-upload-wrapper:hover .edit-overlay { opacity: 1; }
