@@ -79,6 +79,7 @@ const initSQL = `
         status TEXT DEFAULT 'pending', 
         rejection_reason TEXT,
         proof_image TEXT,
+        sender_name TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     CREATE TABLE IF NOT EXISTS profiles (
@@ -88,21 +89,20 @@ const initSQL = `
 `.replace(/SERIAL PRIMARY KEY/g, isPostgres ? 'SERIAL PRIMARY KEY' : 'INTEGER PRIMARY KEY AUTOINCREMENT')
     .replace(/TIMESTAMP/g, isPostgres ? 'TIMESTAMP' : 'DATETIME');
 
-// Run Init
-if (isPostgres) {
-    db.query(initSQL).catch(e => console.error("Init DB Error:", e));
-} else {
-    // SQLite exec doesn't support multiple statements well in wrapper, run manually
-    const sqliteActual = require('sqlite3').verbose().Database; // Re-import to be safe or use existing instance logic
-    // We already have sqliteDb in the closure above if we were cleaner, but simpler to just rely on the wrapper or simple split
-    // For simplicity, let's just assume the wrapper works or we do simple split
-    const stmts = initSQL.split(';');
-    (async () => {
-        for (const stmt of stmts) {
-            if (stmt.trim()) await db.query(stmt);
+// Run Init & Migration
+const runInit = async () => {
+    try {
+        if (isPostgres) {
+            await db.query(initSQL);
+            try { await db.query("ALTER TABLE requests ADD COLUMN sender_name TEXT"); } catch (e) { }
+        } else {
+            const stmts = initSQL.split(';');
+            for (const stmt of stmts) { if (stmt.trim()) await db.query(stmt); }
+            try { await db.query("ALTER TABLE requests ADD COLUMN sender_name TEXT"); } catch (e) { }
         }
-    })();
-}
+    } catch (e) { console.error("Init DB Error:", e); }
+};
+runInit();
 
 
 // Routes
@@ -135,10 +135,10 @@ app.get('/api/profiles', async (req, res) => {
 // Socket Events
 io.on('connection', (socket) => {
     socket.on('request_trip', async (data) => {
-        const { place, start_time, end_time, duration, budget, reason } = data;
-        const sql = `INSERT INTO requests (place, start_time, end_time, duration, budget, reason) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`;
+        const { place, start_time, end_time, duration, budget, reason, sender_name } = data;
+        const sql = `INSERT INTO requests (place, start_time, end_time, duration, budget, reason, sender_name) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`;
         try {
-            const { rows } = await db.query(sql, [place, start_time, end_time, duration, budget, reason]);
+            const { rows } = await db.query(sql, [place, start_time, end_time, duration, budget, reason, sender_name]);
             const newId = rows[0]?.id || rows[0]?.lastID; // Handle Postgres vs SQLite wrapper return
             io.emit('new_request', { id: newId, ...data, status: 'pending', proof_image: null });
         } catch (err) {
