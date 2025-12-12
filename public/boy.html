@@ -22,14 +22,22 @@
                         class="w-full h-full object-cover rounded-full">
                     <div
                         class="edit-overlay absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 transition-opacity duration-300 rounded-full">
-                        <i class="fa-solid fa-camera text-white text-xl"></i></div>
+                        <i class="fa-solid fa-camera text-white text-xl"></i>
+                    </div>
                 </div>
                 <input type="file" id="profile-upload" class="hidden" accept="image/*" onchange="uploadProfile(this)">
                 <div
                     class="absolute bottom-0 right-0 bg-indigo-500 text-white w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
-                    <i class="fa-solid fa-pen text-[10px]"></i></div>
+                    <i class="fa-solid fa-pen text-[10px]"></i>
+                </div>
             </div>
-            <h1 class="text-2xl md:text-3xl font-bold text-slate-800 mt-3">หนูเอง (ลูก)</h1>
+
+            <div class="flex items-center justify-center gap-2 mt-3 group">
+                <input type="text" id="sender-name" value="หนูเอง (ลูก)"
+                    class="text-2xl md:text-3xl font-bold text-slate-800 text-center bg-transparent border-b border-transparent hover:border-slate-300 focus:border-indigo-500 focus:outline-none transition w-full max-w-[250px]"
+                    placeholder="ชื่อของคุณ">
+                <i class="fa-solid fa-pen text-slate-300 text-sm group-hover:text-indigo-400 transition"></i>
+            </div>
             <p class="text-slate-500 text-xs md:text-sm font-medium">บอกแม่ว่าจะกลับบ้าน</p>
         </div>
         <div
@@ -37,8 +45,8 @@
             <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-indigo-500 to-blue-500"></div>
             <div class="space-y-4 md:space-y-6 mt-2">
                 <div><label class="block text-slate-700 text-sm font-semibold mb-2"><i
-                            class="fa-solid fa-location-dot mr-2 text-indigo-500"></i>หัวข้อ?</label><input
-                        type="text" id="place"
+                            class="fa-solid fa-location-dot mr-2 text-indigo-500"></i>หัวข้อ?</label><input type="text"
+                        id="place"
                         class="w-full px-4 py-3 md:px-5 md:py-4 rounded-xl md:rounded-2xl bg-slate-50 border-0 focus:ring-2 focus:ring-indigo-100 outline-none transition text-slate-700 font-medium"
                         placeholder="โรงเรียน, บ้านเพื่อน..."></div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
