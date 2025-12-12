@@ -1,6 +1,12 @@
 const socket = io();
 const list = document.getElementById('list');
-let selectedFilesMap = {}; const currentUser = 'pakapop';
+let selectedFilesMap = {};
+const currentUser = 'pakapop'; // Used for profile picture logic only
+
+// Load saved name
+const savedName = localStorage.getItem('sender_name');
+if (savedName) document.getElementById('sender-name').value = savedName;
+
 const now = new Date(); now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
 document.getElementById('start').value = now.toISOString().slice(0, 16);
 
@@ -11,15 +17,34 @@ socket.on('profile_updated', d => { if (d.username === currentUser) document.get
 fetch('/api/history').then(r => r.json()).then(d => { list.innerHTML = ''; d.forEach(renderTicket); });
 
 function sendRequest() {
-    const place = document.getElementById('place').value, start = document.getElementById('start').value, end = document.getElementById('end').value, budget = document.getElementById('budget').value || 0, reason = document.getElementById('reason').value;
+    const place = document.getElementById('place').value;
+    const start = document.getElementById('start').value;
+    const end = document.getElementById('end').value;
+    const budget = document.getElementById('budget').value || 0;
+    const reason = document.getElementById('reason').value;
+    const senderName = document.getElementById('sender-name').value.trim();
+
+    if (!senderName) return Swal.fire({ icon: 'warning', title: 'กรุณากรอกชื่อด้วยนะ' });
+    localStorage.setItem('sender_name', senderName); // Save name
+
     if (!place || !start || !end) return Swal.fire({ icon: 'warning', title: 'ข้อมูลไม่ครบ' });
     if (start >= end) return Swal.fire({ icon: 'error', title: 'เวลาผิดพลาด', text: 'เวลาถึงบ้านต้องหลังเวลาออกเดินทาง' });
+
     const s = new Date(start), e = new Date(end), days = Math.floor((e - s) / (86400000)), hrs = Math.floor(((e - s) % 86400000) / 3600000);
     const duration = `${days > 0 ? days + ' วัน ' : ''}${hrs} ชม.`;
     const opts = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+
     Swal.fire({ title: 'บอกแม่เลยมั้ย?', showCancelButton: true, confirmButtonText: 'ส่งเลย', confirmButtonColor: '#1e293b', cancelButtonText: 'ยกเลิก' }).then(r => {
         if (r.isConfirmed) {
-            socket.emit('request_trip', { place, start_time: s.toLocaleDateString('th-TH', opts), end_time: e.toLocaleDateString('th-TH', opts), duration, budget, reason });
+            socket.emit('request_trip', {
+                place,
+                start_time: s.toLocaleDateString('th-TH', opts),
+                end_time: e.toLocaleDateString('th-TH', opts),
+                duration,
+                budget,
+                reason,
+                sender_name: senderName
+            });
             document.getElementById('place').value = ''; document.getElementById('reason').value = '';
             Swal.fire({ title: 'ส่งแล้ว!', icon: 'success', showConfirmButton: false, timer: 1500 });
         }
