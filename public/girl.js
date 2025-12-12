@@ -5,7 +5,7 @@ function uploadProfile(i) { if (i.files[0]) { const r = new FileReader(); r.onlo
 socket.on('profile_updated', d => { if (d.username === currentUser) document.getElementById('my-avatar').src = d.avatar; });
 
 fetch('/api/history').then(r => r.json()).then(d => { list.innerHTML = ''; d.forEach(renderTicket); });
-socket.on('new_request', d => { renderTicket(d); window.scrollTo(0, 0); new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play().catch(() => { }); Swal.fire({ title: 'มีการแจ้งเตือนใหม่!', text: d.place, icon: 'info', confirmButtonColor: '#db2777', timer: 3000 }); });
+socket.on('new_request', d => { renderTicket(d); window.scrollTo(0, 0); new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play().catch(() => { }); Swal.fire({ title: 'มีการแจ้งเตือนใหม่!', text: `${d.sender_name || 'ลูก'} ขอไป ${d.place}`, icon: 'info', confirmButtonColor: '#db2777', timer: 3000 }); });
 socket.on('trip_deleted', id => { const t = document.getElementById(`t-${id}`); if (t) { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); } });
 
 async function setStatus(id, s) {
@@ -32,7 +32,14 @@ function renderTicket(d) {
     <div class="bg-white rounded-[20px] p-5 md:p-6 shadow-sm border border-pink-100 fade-in relative overflow-hidden group" id="t-${d.id}">
         <div class="ticket-body">
             <div class="flex justify-between items-start mb-4 relative z-10">
-                <div><div class="text-[10px] text-pink-400 font-medium mb-0.5">คำขอ #${d.id}</div><h4 class="font-bold text-slate-800 text-lg md:text-xl">${d.place}</h4></div>
+                <div>
+                    <div class="text-[10px] text-pink-400 font-medium mb-0.5 flex items-center gap-2">
+                        <span>คำขอ #${d.id}</span>
+                        <span class="w-1 h-1 bg-pink-200 rounded-full"></span>
+                        <span class="text-slate-500"><i class="fa-solid fa-user text-pink-300 mr-1"></i>${d.sender_name || 'ไม่ได้ระบุชื่อ'}</span>
+                    </div>
+                    <h4 class="font-bold text-slate-800 text-lg md:text-xl mt-1">${d.place}</h4>
+                </div>
                 <div class="flex items-center gap-2">
                     <span class="status-badge px-3 py-1 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${d.status === 'approved' ? 'bg-emerald-100 text-emerald-700' : (isRej ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700')}">${d.status === 'approved' ? '<i class="fa-solid fa-circle-check"></i>' : (isRej ? '<i class="fa-solid fa-circle-xmark"></i>' : '<i class="fa-solid fa-circle-pause"></i>')} ${d.status}</span>
                     <button onclick="deleteTrip(${d.id})" class="text-slate-300 hover:text-rose-500 transition p-1"><i class="fa-solid fa-trash"></i></button>
